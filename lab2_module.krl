@@ -14,11 +14,14 @@ ruleset twilio.module {
                     event:attr("message")
                     )
   }
-  
+
+
+//Twilio pageSize defualts to 50, so that is what I have the pageSize defualt to if not provided. It will always return the first page,
+//but you can adjust how many are returned in each page. If no to or from are provided it will return all the results.
     rule test_get_sms {
     select when test results
     send_directive("say", {"something": twilio:messages(event:attr("to").defaultsTo(""),
                                                         event:attr("from").defaultsTo(""),
-                                                        event:attr("page").defaultsTo(50))})
-  }
+                                                        event:attr("page") || 50)})
+  }  
 }

@@ -21,11 +21,14 @@ ruleset twilio.send {
   
     messages = function(to, from, page) {
        base_url = <<https://#{account_sid}:#{auth_token}@api.twilio.com/2010-04-01/Accounts/#{account_sid}/>>
-       http:get(base_url + "Messages.json", qs = {
-                "From":from,
-                "To":to,
+       results = http:get(base_url + "Messages.json", qs = {
                 "PageSize":page
-       })
+       }).decode() {"content"}.decode() {"messages"}
+       resultsTo = (to.length() > 0) => results.filter(function(x) {x{"to"} == to}) | results
+       resultsFrom = (from.length() > 0) => resultsTo.filter(function(x) {x{"from"} == from}) | resultsTo
+       resultsFrom
     }
+          __testing = { "queries": [ {"name": "__testing"}, {"name" : "messages", "args" : ["to", "from", "page"]}] }  
+
   }
 }
