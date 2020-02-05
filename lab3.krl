@@ -25,8 +25,7 @@ ruleset wovyn_base {
     
     pre {
       never_used = event:attr().klog("attrs")
-      test = event:attr("genericThing").decode() {"data"}.decode() {"temperature"}.decode().head() {"temperatureF"}.decode()
-      temperature = 70
+      temperature = event:attr("genericThing").decode() {"data"}.decode() {"temperature"}.decode().head() {"temperatureF"}.decode()
     }
         send_directive("Received Heartbeat with temperature of " + temperature + " at " + time:now())
         fired{
@@ -36,17 +35,17 @@ ruleset wovyn_base {
   }
   
   
-//  rule find_high_temps {
-//  select when wovyn new_temperature_reading
-//    pre {
-//      directive = (event:attr("temperature") > temperature_threshold) => "There has been a temperature violation" | 
-//      "There has not been a temperature violation"
-//    }
-//    send_directive(directive)
-//                fired{
-//        raise wovyn event "threshold_violation" if event:attr("temperature") > temperature_threshold
-//        } 
-//  }
+  rule find_high_temps {
+  select when wovyn new_temperature_reading
+    pre {
+      directive = (event:attr("temperature") > temperature_threshold) => "There has been a temperature violation" | 
+      "There has not been a temperature violation"
+    }
+    send_directive(directive)
+                fired{
+        raise wovyn event "threshold_violation" if event:attr("temperature") > temperature_threshold
+        } 
+  }
   
   
   rule threshold_notification {
