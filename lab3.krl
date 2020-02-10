@@ -4,6 +4,9 @@ ruleset wovyn_base {
     
     use module twilio.keys
     use module twilio.module alias twilio
+    use module temperature_store alias store
+    
+    provides temperature_threshold
   }
   global {
     __testing = { "queries":
@@ -15,7 +18,7 @@ ruleset wovyn_base {
       ]
     }
     
-    temperature_threshold = 80
+    temperature_threshold = 69
     
   }
   
@@ -26,6 +29,7 @@ ruleset wovyn_base {
     pre {
       never_used = event:attr().klog("attrs")
       temperature = event:attr("genericThing").decode() {"data"}.decode() {"temperature"}.decode().head() {"temperatureF"}.decode()
+      //temperature = event:attr("genericThing")
     }
         send_directive("Received Heartbeat with temperature of " + temperature + " at " + time:now())
         fired{
@@ -38,12 +42,16 @@ ruleset wovyn_base {
   rule find_high_temps {
   select when wovyn new_temperature_reading
     pre {
+      temperature = event:attr("temperature")
+      time = event:attr("timestamp")
       directive = (event:attr("temperature") > temperature_threshold) => "There has been a temperature violation" | 
       "There has not been a temperature violation"
     }
     send_directive(directive)
                 fired{
-        raise wovyn event "threshold_violation" if event:attr("temperature") > temperature_threshold
+        raise wovyn event "threshold_violation" 
+        attributes { "temperature" : temperature, "timestamp" : time } 
+        if event:attr("temperature") > temperature_threshold
         } 
   }
   
@@ -60,5 +68,3 @@ ruleset wovyn_base {
   }
   
 }
-
-
