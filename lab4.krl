@@ -1,6 +1,6 @@
 ruleset temperature_store {
   meta {
-    shares __testing//, temperatures, threshold_violations, inrange_temperatures
+    shares __testing, temperatures, threshold_violations, inrange_temperatures
     
     provides temperatures, threshold_violations, inrange_temperatures
   }
