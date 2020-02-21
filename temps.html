@@ -1,0 +1,85 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Simple Temperature Page</title>
+  <meta name="description" content="Temperature Page">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+	<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+
+<body onload="getTemperatureData()">
+  <script src="test.js"></script>
+
+<h1>Temperatures</h1>
+<a href='profile.html'>Profile</a>
+
+<div>
+
+<div style="float:left; margin-right: 10px">
+  <h3>Current Temperature</h3>
+
+  <h3 id='currentTemp'>Temperature</h3>
+
+    <button onclick="getTemperatureData()">Test</button>
+</div>
+</div>
+
+<div position="absolute">
+
+<div style="float: left;margin-right:10px">
+<h3>Most Recent Temperatures</h3>
+
+  <table border="1" cellpadding="3" id="printTable">
+	<thead><tr>
+		<th>DateTime</th>
+		<th>Temperature</th>		
+	</tr>
+	</thead>
+	<tbody id='tableBody'>
+		
+	</tbody>
+	</table>
+</div>
+
+<div style="float: left;">
+	  <h3>Violations</h3>
+
+
+  <table border="1" cellpadding="3" id="violationTable">
+	<thead><tr>
+		<th>DateTime</th>
+		<th>Violation</th>		
+	</tr>
+	</thead>
+	<tbody id='tableBody2'>
+		
+	</tbody>
+	</table>
+</div>
+</div>
+  <!-- <textarea id='temps'>This is where the temperatures go</textarea> -->
+
+
+</body>
+</html>

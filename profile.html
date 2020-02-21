@@ -1,0 +1,74 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>Simple Temperature Page</title>
+  <meta name="description" content="Temperature Page">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+	<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+
+<body onload="getValues()">
+  <script src="test.js"></script>
+
+<h2>Profile</h2>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <td id="name"></td>
+  </tr>
+  <tr>
+    <th>Location</th>
+    <td id="location"></td>
+  </tr>
+  <tr>
+    <th>Contact Number</th>
+    <td id="number"></td>
+  </tr>
+  <tr>
+    <th>Threshold</th>
+    <td id="threshold"></td>
+  </tr>
+
+
+<table>
+	<colgroup><col align="right"></col><col align="left"></col></colgroup>
+	<tr><th colspan="2"><h3>Update Profile</h3></th></tr>
+	<tr><th>Name:</th>
+		<td><input type="text" id= "new_name" name="name" value="" title="name"><td></tr>
+	<tr><th>Location:</th>
+		<td><input type="text" id= "new_location" name="location" title="location"></td></tr>
+	<tr><th>Contact Number</th>
+		<td><input type="text" id= "new_number" name="number" title="number"><td></tr>
+	<tr><th>Threshold</th>
+		<td><input type="number" id= "new_threshold" name="threshold" title="threshold"><td></tr>
+
+	<tr><td><input type="button" value="Send" onclick="updateValues()"> <input type="reset" id="reset"></td><td><a href='temps.html'>Temperature Readings</a></td></tr>
+
+</body>
+
+
+</html>
+
