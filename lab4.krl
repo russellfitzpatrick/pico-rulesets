@@ -29,6 +29,20 @@ ruleset temperature_store {
     }
   }
   
+  
+  
+    rule reset_violations {
+    select when sensor profile_updated where event:attr("threshold")
+      fired {
+        clear ent:violations
+        log debug "Getting here"
+        log debug event:attr("threshold")
+        ent:violations := ent:new_temps.filter(function(x) {x.get(["temperature"]) > event:attr("threshold")})
+        log debug ent:violations
+      }
+  }
+  
+  
   rule collect_temperatures {
   select when wovyn new_temperature_reading
     pre {
@@ -63,3 +77,4 @@ ruleset temperature_store {
     }
   }
 }
+
