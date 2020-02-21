@@ -4,9 +4,7 @@ ruleset wovyn_base {
     
     use module twilio.keys
     use module twilio.module alias twilio
-    use module temperature_store alias store
-    
-    provides temperature_threshold
+    use module sensor_profile alias sensor
   }
   global {
     __testing = { "queries":
@@ -18,7 +16,7 @@ ruleset wovyn_base {
       ]
     }
     
-    temperature_threshold = 69
+    //temperature_threshold = 69
     
   }
   
@@ -44,14 +42,14 @@ ruleset wovyn_base {
     pre {
       temperature = event:attr("temperature")
       time = event:attr("timestamp")
-      directive = (event:attr("temperature") > temperature_threshold) => "There has been a temperature violation" | 
+      directive = (event:attr("temperature") > sensor:get_threshold()) => "There has been a temperature violation" | 
       "There has not been a temperature violation"
     }
     send_directive(directive)
                 fired{
         raise wovyn event "threshold_violation" 
         attributes { "temperature" : temperature, "timestamp" : time } 
-        if event:attr("temperature") > temperature_threshold
+        if event:attr("temperature") > sensor:get_threshold()
         } 
   }
   
@@ -63,7 +61,7 @@ ruleset wovyn_base {
       
       fired{
         raise test event "new_message"
-        attributes { "to": "+19492145651", "from": "+12564483037", "message":"temp threshold"}
+        attributes { "to": sensor:get_number(), "from": "+12564483037", "message":"temp threshold"}
       }
   }
   
