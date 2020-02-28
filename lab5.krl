@@ -15,7 +15,7 @@ ruleset sensor_profile {
     }
     
   get_threshold = function() {
-   ent:threshold.defaultsTo(69);
+   ent:threshold;
  };
  
   get_location = function() {
@@ -23,11 +23,11 @@ ruleset sensor_profile {
   };
   
     get_name = function() {
-    ent:name.defaultsTo("Best User");
+    ent:name;
   };
   
     get_number = function() {
-    ent:number.defaultsTo("+19492145651");
+    ent:number;
   };
 }
 
