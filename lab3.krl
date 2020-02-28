@@ -26,8 +26,8 @@ ruleset wovyn_base {
     
     pre {
       never_used = event:attr().klog("attrs")
-      temperature = event:attr("genericThing").decode() {"data"}.decode() {"temperature"}.decode().head() {"temperatureF"}.decode()
-      //temperature = event:attr("genericThing")
+      //temperature = event:attr("genericThing").decode() {"data"}.decode() {"temperature"}.decode().head() {"temperatureF"}.decode()
+      temperature = event:attr("genericThing")
     }
         send_directive("Received Heartbeat with temperature of " + temperature + " at " + time:now())
         fired{
@@ -60,8 +60,8 @@ ruleset wovyn_base {
       send_directive("Sent Text")
       
       fired{
-        raise test event "new_message"
-        attributes { "to": sensor:get_number(), "from": "+12564483037", "message":"temp threshold"}
+//        raise test event "new_message"
+//        attributes { "to": sensor:get_number(), "from": "+12564483037", "message":"temp threshold"}
       }
   }
   
