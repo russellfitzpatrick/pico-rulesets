@@ -2,8 +2,8 @@ ruleset wovyn_base {
   meta {
     shares __testing
     
-    use module twilio.keys
-    use module twilio.module alias twilio
+ //   use module twilio.keys
+ //   use module twilio.module alias twilio
     use module sensor_profile alias sensor
     use module io.picolabs.subscription alias Subscriptions
   }
