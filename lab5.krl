@@ -1,8 +1,8 @@
 ruleset sensor_profile {
   meta {
-    shares __testing, get_threshold, get_number
+    shares __testing, get_threshold, get_number, get_name
     
-    provides get_threshold, get_number
+    provides get_threshold, get_number, get_name
   }
   global {
     __testing = { "queries":
@@ -22,7 +22,7 @@ ruleset sensor_profile {
     ent:location.defaultsTo("Provo");
   };
   
-    get_name = function() {
+  get_name = function() {
     ent:name;
   };
   
@@ -31,7 +31,15 @@ ruleset sensor_profile {
   };
 }
 
-  
+  rule auto_accept {
+  select when wrangler inbound_pending_subscription_added
+  fired {
+    raise wrangler event "pending_subscription_approval"
+      attributes event:attrs
+  }
+} 
+ 
+ 
   rule get_profile {
     select when sensor get_profile
       
