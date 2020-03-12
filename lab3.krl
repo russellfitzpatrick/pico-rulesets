@@ -5,6 +5,7 @@ ruleset wovyn_base {
     use module twilio.keys
     use module twilio.module alias twilio
     use module sensor_profile alias sensor
+    use module io.picolabs.subscription alias Subscriptions
   }
   global {
     __testing = { "queries":
@@ -54,15 +55,22 @@ ruleset wovyn_base {
   }
   
   
+  
   rule threshold_notification {
     select when wovyn threshold_violation
     
-      send_directive("Sent Text")
-      
-      fired{
-//        raise test event "new_message"
-//        attributes { "to": sensor:get_number(), "from": "+12564483037", "message":"temp threshold"}
+      pre{
+        eci = Subscriptions:established("Tx_role","sensor_manager").map(function(x) {x["Tx"]}).head()
+        temp = event:attr("temperature")
       }
+    
+      event:send({
+        "eci": eci, "eid": null,
+        "domain": "sensor", "type": "threshold_violation",
+        "attrs": {"name":sensor:get_name(),
+                  "number":sensor:get_number(),
+                  "temp":temp
+        }
+      })
   }
-  
 }
