@@ -28,7 +28,7 @@ ruleset manage_sensors {
     
     get_temps = function() {
       Subscriptions:established("Tx_role","sensor").map(function(x) {
-        Wrangler:skyQuery(x["Tx"],"temperature_store","temperatures",null) })
+        Wrangler:skyQuery(x["Tx"],"temperature_store","temperatures",null, x["Tx_host"]) })
     }
   }
   
@@ -163,7 +163,9 @@ ruleset manage_sensors {
     
     pre{
       eci = event:attr("Tx")
-      name = Wrangler:skyQuery(eci,"sensor_profile","get_name",null)
+      bus = event:attr("bus")
+      uri = bus["Tx_host"]
+      name = Wrangler:skyQuery(eci,"sensor_profile","get_name",null,uri)
       
     }
     
