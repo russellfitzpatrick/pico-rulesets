@@ -1,6 +1,6 @@
 ruleset manage_sensors {
   meta {
-    shares __testing, sensors, get_temps
+    shares __testing, sensors, get_temps, get_temps_report
     
     use module io.picolabs.wrangler alias Wrangler
     use module io.picolabs.subscription alias Subscriptions
@@ -11,16 +11,19 @@ ruleset manage_sensors {
     __testing = { "queries":
       [ { "name": "__testing" }
       , { "name": "sensors", "args": [] },
-      { "name": "get_temps", "args": [] }
+      { "name": "get_temps", "args": [] },
+      { "name": "get_temps_report", "args": [] }
       ] , "events":
       [ { "domain": "sensor", "type": "new_sensor", "attrs": ["name"]}
       , { "domain": "sensor", "type": "unneeded_sensor", "attrs": [ "name" ] },
-      { "domain": "sensor", "type": "subscribe", "attrs": [ "name", "eci", "host", "port" ] }
+      { "domain": "sensor", "type": "subscribe", "attrs": [ "name", "eci", "host", "port" ] },
+      {"domain": "manager", "type": "generate_report" }
       ]
     }
     
     default_threshold = 69
     default_number = "+19492145651"
+    report_number = 0
     
     sensors = function() {
       ent:sensors.defaultsTo({});
@@ -30,6 +33,87 @@ ruleset manage_sensors {
       Subscriptions:established("Tx_role","sensor").map(function(x) {
         Wrangler:skyQuery(x["Tx"],"temperature_store","temperatures",null, x["Tx_host"]) })
     }
+    
+    get_temps_report = function() {
+      min = ent:temperature_reports.length() - 5
+      min = (min < 0) => 0 | min
+      ent:temperature_reports.filter(function(v,k)
+      {
+        v["report_number"] >= min
+      })
+    }
+  }
+  
+  rule generate_new_id {
+    select when manager generate_report
+    
+    pre {
+      id = random:uuid()
+    }
+    
+    fired {
+      ent:temperature_reports := ent:temperature_reports.defaultsTo({})
+//      ent:temperature_reports{id} := ent:temperature_reports.put(id)
+      ent:report_number := ent:report_number.defaultsTo(0)
+      ent:temperature_reports{id} := {"temperature_sensors":Subscriptions:established("Tx_role","sensor").length(),
+                                      "responding": 0, "report_number":ent:report_number, "temperatures": {} }
+                                      
+//      ent:temperature_reports := ent:temperature_reports.filter( function(v,k) { v["report_number"]  }) 
+      ent:report_number := ent:report_number + 1
+      raise manager event "request_reports"
+      attributes {
+        "id": id,
+      }
+    }
+  }
+  
+  rule create_temp_report {
+    select when manager request_reports
+    
+      foreach Subscriptions:established("Tx_role","sensor") setting(x)
+      
+      pre {
+        id = event:attr("id")
+      }
+          event:send({
+        "eci": x["Tx"], "eid": null,
+        "domain": "sensor", "type": "generate_report",
+        "attrs": {"originator":x["Rx"], "orig_host":meta:host,
+          "Tx":x["Tx"], "id":id
+        }
+      }, host=x["Tx_host"])
+        
+  }
+  
+  
+  rule new_temp_report {
+    select when manager report_generated
+    
+    pre {
+      
+      temps = event:attr("temps")
+      Tx = event:attr("Tx")
+      id = event:attr("id")
+    }
+    
+    fired {
+      ent:temperature_reports{[id, "responding"]} := ent:temperature_reports{[id, "responding"]} + 1
+      ent:temperature_reports{[id, "temperatures", Tx]} := temps
+      raise manager event "check_status"
+      attributes {
+        "id": id
+      }
+    }
+  }
+  
+  rule check_report_status {
+    select when manager check_status
+    pre {
+      id = event:attr("id")
+    }
+    
+    if ent:temperature_reports{[id, "responding"]} == Subscriptions:established("Tx_role","sensor").length()
+      then send_directive("Report " + id + " is ready")
   }
   
   rule create_sensor {
