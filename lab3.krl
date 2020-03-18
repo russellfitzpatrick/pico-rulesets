@@ -2,9 +2,10 @@ ruleset wovyn_base {
   meta {
     shares __testing
     
- //   use module twilio.keys
- //   use module twilio.module alias twilio
+    use module twilio.keys
+    use module twilio.module alias twilio
     use module sensor_profile alias sensor
+    use module temperature_store alias store
     use module io.picolabs.subscription alias Subscriptions
   }
   global {
@@ -61,6 +62,7 @@ ruleset wovyn_base {
     
       pre{
         eci = Subscriptions:established("Tx_role","sensor_manager").map(function(x) {x["Tx"]}).head()
+        host = Subscriptions:established("Tx_role","sensor_manager").map(function(x) {x["Tx_host"]}).head()
         temp = event:attr("temperature")
       }
     
@@ -71,6 +73,30 @@ ruleset wovyn_base {
                   "number":sensor:get_number(),
                   "temp":temp
         }
-      })
+      }, host=host )
+  }
+  
+  rule create_report {
+    select when sensor generate_report
+    
+    pre {
+      Tx = event:attr("originator")
+      host = event:attr("orig_host")
+      id = event:attr("id")
+      Rx = event:attr("Tx")
+      
+      temps = store:temperatures()
+    }
+    
+    event:send({
+        "eci": Tx, "eid": null,
+        "domain": "manager", "type": "report_generated",
+        "attrs": {"temps":temps,
+                  "Tx":Rx,
+                  "id":id
+        }
+      }, host=host )
+    
+    //send_directive("Generating report...")
   }
 }
